@@ -1,0 +1,68 @@
+﻿
+@if (LanguageItemSource == null)
+{
+    <span>Loading...</span>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="txtLanguage">Language:</label>
+                    <AutoCompleteTextBoxComponent Id="txtAutoCompleteBox"
+                                                  CssClass="form-control"
+                                                  MinimumLength="0"
+                                                  ItemSource="@LanguageItemSource"
+                                                  @bind-SelectedItem="SelectedItem"
+                                                  >
+
+                    </AutoCompleteTextBoxComponent>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                @*<button class="btn btn-success" @onclick="OnSubmit">Submit</button>*@
+                @if (SelectedItem != null)
+                {
+                    <div class="alert alert-success">
+                        <span>@SelectedItem</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
+@code {
+
+    private List<String> LanguageItemSource { get; set; }
+
+    private String SelectedItem { get; set; }
+
+    //private void OnSubmit()
+    //{
+    //    _ = SelectedItem;
+    //}
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            LanguageItemSource = new List<string>();
+            LanguageItemSource.Add("C");
+            LanguageItemSource.Add("C++");
+            LanguageItemSource.Add("CSharp");
+            LanguageItemSource.Add("Java");
+            LanguageItemSource.Add("Javascript");
+
+            StateHasChanged();
+        }
+        base.OnAfterRender(firstRender);
+    }
+
+}

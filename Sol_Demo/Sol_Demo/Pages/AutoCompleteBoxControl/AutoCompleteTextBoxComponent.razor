@@ -1,0 +1,81 @@
+﻿@using Sol_Demo.Pages.AutoCompleteBoxControl.Extensions
+@inject IJSRuntime jsRuntime
+
+<div class="ui-widget">
+    <input @ref="ElementReferenceObj"
+           type="text"
+           class="@CssClass" />
+</div>
+
+@code {
+
+    #region Public Property
+    [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
+    public String CssClass { get; set; }
+
+    [Parameter]
+    public int MinimumLength { get; set; }
+
+    [Parameter]
+    public List<String> ItemSource { get; set; }
+
+    [Parameter]
+    public String SelectedItem { get; set; }
+
+    [Parameter]
+    public EventCallback<string> SelectedItemChanged { get; set; }
+
+    #endregion
+
+    #region Private Property
+    private string ItemSourceJson { get; set; }
+
+    private ElementReference ElementReferenceObj { get; set; }
+
+    #endregion
+
+    #region Private Static Method
+    private static Action<String> ActionObj { get; set; }
+    #endregion
+
+    #region Static Method
+    [JSInvokable]
+    public static Task OnItemSelectedJS(string item)
+    {
+        ActionObj(item);
+        return Task.CompletedTask;
+    }
+    #endregion
+
+
+    #region Protected Method
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ItemSourceJson = JsonConvert.SerializeObject(ItemSource);
+
+            var autoTextBoxJson = JsonConvert.SerializeObject(new { Id = Id, MinLength = MinimumLength, ItemSourceJson = ItemSourceJson });
+
+            await ElementReferenceObj.AutoCompleteBoxInitAsync(jsRuntime, autoTextBoxJson);
+
+            ActionObj = (item) =>
+            {
+                InvokeAsync(async () => {
+
+                    SelectedItem = item;
+                    await SelectedItemChanged.InvokeAsync(SelectedItem);
+
+                    StateHasChanged();
+                });
+            };
+
+            StateHasChanged();
+        }
+    }
+
+    #endregion 
+}
